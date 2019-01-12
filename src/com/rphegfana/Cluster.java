@@ -1,10 +1,12 @@
 package com.rphegfana;
 
 import PhageEngine.Entity;
-import javafx.geometry.Point2D;
+import PhageEngine.GameMath;
+import PhageEngine.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Cluster extends Entity{
@@ -13,6 +15,12 @@ public class Cluster extends Entity{
     private double x, y;
     private int r, g, b;
     private Color color;
+    private Point2D[] pos;
+
+    public void setPos(Point2D[] pos) {
+        this.pos = pos;
+    }
+
     private ArrayList<Particle> particles;
 
     public Cluster(double heat, double startX, double startY){
@@ -33,17 +41,28 @@ public class Cluster extends Entity{
             System.out.println(x + ", " + y);
             particles.add(new Particle(x, y));
         }
+
+        pos = new Point2D[16];
+    }
+
+    public void setHeat(double heat) {
+        this.heat = heat;
     }
 
     @Override
     public void onUpdate(GraphicsContext gc) {
-        r = (int)Math.round(heat * 255);
-        b = (int)Math.round((1 - heat) * 255);
+        r = GameMath.cap((int)Math.round(heat * 255),0, 255);
+        b = GameMath.cap((int)Math.round((1 - heat) * 255), 0 ,255);
+        g = GameMath.cap((int)Math.round((1.5 - Math.abs(heat)) * 50), 0, 255);
         color = Color.rgb(r, g, b);
 
-        for(Particle p : particles){
+        for(int i = 0; i < particles.size(); i++){
+            Particle p = particles.get(i);
+
             p.setColor(color);
             p.setClusterPos(x, y);
+            p.setPos(pos[i]);
+            p.setHeat(heat);
             p.draw(gc);
         }
     }

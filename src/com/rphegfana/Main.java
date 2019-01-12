@@ -1,18 +1,21 @@
 package com.rphegfana;
 
-import PhageEngine.GameApp;
-import PhageEngine.GameSettings;
-import PhageEngine.Stats;
-import javafx.geometry.Point2D;
+import PhageEngine.*;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+
+import java.util.Random;
 
 public class Main extends GameApp {
 
     private double cursorCool;
     private Cluster player;
+    private double heat, heatTranslate;
+    private String state;
     private Point2D[] translate, pos;
+    private Random R;
 
     //    This is a function that can be used to change the settings of the game
     @Override
@@ -26,9 +29,20 @@ public class Main extends GameApp {
     @Override
     public void initGame() {
         cursorCool = 0;
-        player = new Cluster(0,Stats.getScreenX() + 100, (Stats.getScreenY() + Stats.getScreenMaxY()) / 2);
+        heat = 0;
+        heatTranslate = 0.01;
+        state = "solid";
+
+        player = new Cluster(heat,Stats.getScreenX() + 150, (Stats.getScreenY() + Stats.getScreenMaxY()) / 2);
         translate = new Point2D[16];
         pos = new Point2D[16];
+
+//        Fill the arrays with something
+        for(int i = 0; i < 16; i++){
+            translate[i] = new Point2D(0, 0);
+            pos[i] = new Point2D(0, 0);
+        }
+        R = new Random();
     }
 
     @Override
@@ -49,5 +63,47 @@ public class Main extends GameApp {
         } else {
             setCursor(Cursor.DEFAULT);
         }
+
+//        Update movement behavior of particles
+        for(int i = 0; i < pos.length; i++){
+            translate[i].setX((translate[i].getX() + R.nextInt(1000) * 0.001));
+            translate[i].setY((translate[i].getY() + R.nextInt(1000) * 0.001));
+            pos[i].setX(Math.sin(translate[i].getX()));
+            pos[i].setY(Math.sin(translate[i].getY()));
+        }
+
+        player.setPos(pos);
+
+        if(isKeyHeld(KeyCode.UP)){
+            heatTranslate += 0.01;
+        }
+
+        if(isKeyHeld(KeyCode.DOWN)){
+            heatTranslate -= 0.01;
+        }
+
+        if(heatTranslate < 0){
+            heatTranslate = 1.5;
+        }
+
+        if(heatTranslate > 1.5){
+            heatTranslate = 0;
+        }
+
+        heat += (heatTranslate - heat) * 0.1;
+
+        String oldState = state;
+        if(heat < 0.3){
+            state = "solid";
+        } else if(heat > 1){
+            state = "gas";
+        } else{
+            state = "liquid";
+        }
+
+
+
+        player.setHeat(heat);
+
     }
 }
