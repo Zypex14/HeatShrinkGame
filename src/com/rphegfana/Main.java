@@ -66,8 +66,8 @@ public class Main extends GameApp {
 
 //        Update movement behavior of particles
         for(int i = 0; i < pos.length; i++){
-            translate[i].setX((translate[i].getX() + R.nextInt(1000) * 0.001));
-            translate[i].setY((translate[i].getY() + R.nextInt(1000) * 0.001));
+            translate[i].setX((translate[i].getX() + R.nextInt(1000) * 0.001) % (Math.PI * 2));
+            translate[i].setY((translate[i].getY() + R.nextInt(1000) * 0.001) % (Math.PI * 2));
             pos[i].setX(Math.sin(translate[i].getX()));
             pos[i].setY(Math.sin(translate[i].getY()));
         }
@@ -93,15 +93,45 @@ public class Main extends GameApp {
         heat += (heatTranslate - heat) * 0.1;
 
         String oldState = state;
-        if(heat < 0.3){
+        if(heatTranslate < 0.3){
             state = "solid";
-        } else if(heat > 1){
+        } else if(heatTranslate > 0.75){
             state = "gas";
         } else{
             state = "liquid";
         }
 
+        if(!state.equals(oldState)){
+            String changeText = "";
+            switch(oldState + state){
+                case "gassolid":
+                    changeText = "Deposition";
+                    break;
 
+                case "solidliquid":
+                    changeText = "Melting";
+                    break;
+
+                case "liquidgas":
+                    changeText = "Evaporation";
+                    break;
+
+                case "solidgas":
+                    changeText = "Sublimation";
+                    break;
+
+                case "gasliquid":
+                    changeText = "Condensation";
+                    break;
+                case "liquidsolid":
+                    changeText = "Freezing";
+                    break;
+            }
+
+            new ChangeText(changeText);
+            System.out.println(changeText);
+
+        }
 
         player.setHeat(heat);
 
