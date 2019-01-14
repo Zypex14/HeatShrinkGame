@@ -5,8 +5,6 @@ import PhageEngine.GameMath;
 import PhageEngine.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class Cluster extends Entity{
@@ -19,6 +17,11 @@ public class Cluster extends Entity{
 
     public void setPos(Point2D[] pos) {
         this.pos = pos;
+    }
+
+    public void setClusterPos(double x, double y){
+        this.x = x;
+        this.y = y;
     }
 
     private ArrayList<Particle> particles;
@@ -38,11 +41,18 @@ public class Cluster extends Entity{
         for (int i = 0; i < 16; i++){
             int x = (i % 4) * 20 - 30;
             int y = Math.floorDiv(i , 4) * 20 - 30;
-            System.out.println(x + ", " + y);
             particles.add(new Particle(x, y));
         }
 
         pos = new Point2D[16];
+    }
+
+    public double getX(){
+        return x;
+    }
+
+    public double getY(){
+        return y;
     }
 
     public void setHeat(double heat) {

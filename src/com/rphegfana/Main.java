@@ -6,20 +6,25 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Main extends GameApp {
 
-    private double cursorCool;
+    private Timer cursorCool;
     private Cluster player;
     private double heat, heatTranslate;
     private String state;
     private Point2D[] translate, pos;
     private Random R;
+    private Timer clusterGen;
+    private int difficulty;
+    private ArrayList<Cluster> snaps;
 
     //    This is a function that can be used to change the settings of the game
     @Override
     public void initSettings(GameSettings gs) {
+        gs.setFps(60);
         gs.setTitle("Thermal Snap");
         gs.setFullscreen(true);
         gs.setAspectRatio(16, 9);
@@ -28,7 +33,9 @@ public class Main extends GameApp {
     //    This is called the instant the game starts
     @Override
     public void initGame() {
-        cursorCool = 0;
+        cursorCool = new Timer();
+        cursorCool.start();
+
         heat = 0;
         heatTranslate = 0.01;
         state = "solid";
@@ -43,25 +50,40 @@ public class Main extends GameApp {
             pos[i] = new Point2D(0, 0);
         }
         R = new Random();
+        clusterGen = new Timer();
+        clusterGen.start();
+        snaps = new ArrayList<>();
+        difficulty = 5000;
     }
 
     @Override
     public void onUpdate(GraphicsContext gc) {
+
         gc.setFill(Color.BLACK);
         gc.fillRect(Stats.getScreenX(), Stats.getScreenY(), Stats.getScreenWidth(), Stats.getScreenHeight());
-
+        renderTemperature(gc);
 
 //        Hide mouse if not moving for one second
         if (isMouseMoving()) {
-            cursorCool = 0;
-        } else {
-            cursorCool++;
+            cursorCool.reset();
         }
-
-        if (cursorCool > 60) {
+        if (cursorCool.getTime() > 1000) {
             setCursor(Cursor.NONE);
         } else {
             setCursor(Cursor.DEFAULT);
+        }
+
+        if(clusterGen.getTime() > difficulty){
+            snaps.add(new Cluster(R.nextInt(120) * 0.01 + 0.1, Stats.getScreenMaxX() + 200, Stats.getScreenY() + Stats.getScreenHeight() / 2));
+            clusterGen.reset();
+        }
+
+        for (Cluster c: snaps){
+            c.setPos(pos);
+            c.setClusterPos(c.getX() - 5, c.getY());
+            if(c.getX() < -200){
+                Cluster.removeObject(c);
+            }
         }
 
 //        Update movement behavior of particles
@@ -129,11 +151,31 @@ public class Main extends GameApp {
             }
 
             new ChangeText(changeText);
-            System.out.println(changeText);
 
         }
 
         player.setHeat(heat);
+        System.out.println("Runtime: " + getRuntime());
+
+    }
+
+    private void renderTemperature(GraphicsContext gc){
+
+        double maxX = Stats.getScreenMaxX();
+        double maxY = Stats.getScreenMaxY();
+
+        gc.setFill(Color.rgb(100, 10, 10));
+        gc.fillRect(maxX - 100, maxY - 20, 100, 20);
+
+        gc.setFill(Color.rgb(75, 20, 110));
+        gc.fillRect(maxX - 160, maxY - 20, 60, 20);
+
+        gc.setFill(Color.rgb(20, 75, 150));
+        gc.fillPolygon(new double[]{maxX - 160, maxX - 160, maxX - 200}, new double[]{maxY, maxY - 20, maxY}, 3);
+
+        gc.setFill(Color.WHITE);
+        double heat2temp = heat * 400d/3d;
+        gc.fillPolygon(new double[]{maxX - 200 + heat2temp, maxX - 210 + heat2temp, maxX - 190 + heat2temp}, new double[]{maxY - 20, maxY - 30, maxY - 30}, 3);
 
     }
 }

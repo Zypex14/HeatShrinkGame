@@ -57,6 +57,5 @@ public class ChangeText extends Entity {
         setX(getX() + Math.cos(direction) * 2);
         setY(getY() + Math.sin(direction) * 2);
         drawRotText(getX(), getY(), rot, changeText + "!", Color.rgb(255, 255, 255, opacity), gc);
-        System.out.println(opacity);
     }
 }
