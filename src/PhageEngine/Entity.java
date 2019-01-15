@@ -85,6 +85,14 @@ public abstract class Entity {
         return x;
     }
 
+    public void translateX(double x){
+        setX(getX() + x);
+    }
+
+    public void translateY(double y){
+        setY(getY() + y);
+    }
+
     public double getScreenX(){
         return (x / Stats.getMaxX()) * Stats.getScreenWidth() + Stats.getScreenX();
     }

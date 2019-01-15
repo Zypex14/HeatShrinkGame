@@ -26,6 +26,7 @@ public abstract class GameApp extends Application {
     private double h, w, b1w, b1h, b2x, b2y, b2w, b2h;
     private HashMap<KeyCode, Boolean> key;
     private Scene scene;
+    private Timer runtime;
     private boolean mouseMoving;
 
     public abstract void initSettings(GameSettings gs);
@@ -64,7 +65,7 @@ public abstract class GameApp extends Application {
         Timeline gameLoop = new Timeline();
         gameLoop.setCycleCount(Timeline.INDEFINITE);
 
-        KeyFrame kf = new KeyFrame(Duration.seconds((double) 1 / gs.getFps()),
+        KeyFrame kf = new KeyFrame(Duration.seconds( 1d / gs.getHertz()),
                 (ActionEvent event) -> {
 
                     Stats.update();
@@ -72,6 +73,7 @@ public abstract class GameApp extends Application {
 
                     onUpdate(gc);
                     Entity.updateObjects(gc, key);
+                    Loop.updateObjects();
 
                     if(gs.getFullscreen()) {
 
@@ -80,7 +82,6 @@ public abstract class GameApp extends Application {
                         gc.fillRect(b2x, b2y, b2w, b2h);
 
                     }
-
                     mouseMoving = false;
                 }
         );
@@ -159,8 +160,9 @@ public abstract class GameApp extends Application {
 
         primaryStage.show();
 
-
+        runtime = new Timer();
         initGame();
+        runtime.start();
         System.out.println("Game init");
     }
 
@@ -171,6 +173,10 @@ public abstract class GameApp extends Application {
     public boolean isKeyHeld(KeyCode key) {
         this.key.putIfAbsent(key, false);
         return this.key.get(key);
+    }
+
+    public long getRuntime(){
+        return runtime.getTime();
     }
 
     public boolean isMouseMoving() {
