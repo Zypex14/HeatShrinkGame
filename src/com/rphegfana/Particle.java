@@ -8,10 +8,12 @@ public class Particle {
 
     private double startX, startY, startZ;
     private double x, y;
+    private double screenX, screenY;
     private double heat;
 
     private double clusterX, clusterY;
     private Color color;
+
 
     public Particle(double x, double y){
         startX = x;
@@ -42,6 +44,14 @@ public class Particle {
         this.heat = heat;
     }
 
+    public double getX(){
+        return screenX;
+    }
+
+    public double getY(){
+        return screenY;
+    }
+
     public void draw(GraphicsContext gc){
         double offX, offY, radians, distance;
         radians = Math.atan2(startY, startX);
@@ -49,8 +59,11 @@ public class Particle {
         offX = distance * (heat * 2 + 1) * 1 * (Math.cos(radians));
         offY = distance * (heat * 2 + 1) * 1 * (Math.sin(radians));
 
+        screenX = clusterX + offX + (x * heat * 20);
+        screenY = clusterY + offY + (y * heat * 20);
+
         gc.setFill(color);
-        gc.fillOval(clusterX + offX + (x * heat * 20), clusterY + offY + (y * heat * 20), 20, 20);
+        gc.fillOval(screenX, screenY, 20, 20);
     }
 
 }

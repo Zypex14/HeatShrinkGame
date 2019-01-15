@@ -65,7 +65,7 @@ public abstract class GameApp extends Application {
         Timeline gameLoop = new Timeline();
         gameLoop.setCycleCount(Timeline.INDEFINITE);
 
-        KeyFrame kf = new KeyFrame(Duration.seconds( 1d / gs.getFps()),
+        KeyFrame kf = new KeyFrame(Duration.seconds( 1d / gs.getHertz()),
                 (ActionEvent event) -> {
 
                     Stats.update();
@@ -82,7 +82,6 @@ public abstract class GameApp extends Application {
                         gc.fillRect(b2x, b2y, b2w, b2h);
 
                     }
-
                     mouseMoving = false;
                 }
         );

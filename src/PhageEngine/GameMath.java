@@ -37,4 +37,28 @@ public class GameMath {
 
         return value;
     }
+
+    public static int polarity(int n){
+        if (n > 0){
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
+    public static double polarity(double n){
+        if (n > 0){
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
+    public static long polarity(long n){
+        if (n > 0){
+            return 1;
+        } else {
+            return -1;
+        }
+    }
 }

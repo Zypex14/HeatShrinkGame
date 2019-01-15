@@ -66,11 +66,11 @@ public class GameSettings {
         this.fullscreen = fullscreen;
     }
 
-    public int getFps() {
+    public int getHertz() {
         return fps;
     }
 
-    public void setFps(int fps) {
+    public void setHertz(int fps) {
         this.fps = fps;
     }
 

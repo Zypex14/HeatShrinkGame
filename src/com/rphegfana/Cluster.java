@@ -51,6 +51,18 @@ public class Cluster extends Entity{
         return x;
     }
 
+    public ArrayList<Particle> getParticles(){
+        return particles;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public double getHeat(){
+        return heat;
+    }
+
     public double getY(){
         return y;
     }

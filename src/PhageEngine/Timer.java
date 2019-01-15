@@ -21,6 +21,11 @@ public class Timer extends Loop {
         return time;
     }
 
+    public void setTime(long time){
+        reset();
+        startTime = System.currentTimeMillis() - time;
+    }
+
     public boolean isRunning() {
         return running;
     }

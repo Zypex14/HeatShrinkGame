@@ -19,12 +19,12 @@ public class Main extends GameApp {
     private Random R;
     private Timer clusterGen;
     private int difficulty;
-    private ArrayList<Cluster> snaps;
+    private ArrayList<Cluster> snaps, deleteSnaps;
 
     //    This is a function that can be used to change the settings of the game
     @Override
     public void initSettings(GameSettings gs) {
-        gs.setFps(60);
+        gs.setHertz(60);
         gs.setTitle("Thermal Snap");
         gs.setFullscreen(true);
         gs.setAspectRatio(16, 9);
@@ -52,8 +52,11 @@ public class Main extends GameApp {
         R = new Random();
         clusterGen = new Timer();
         clusterGen.start();
+        clusterGen.setTime(5000);
+
         snaps = new ArrayList<>();
-        difficulty = 5000;
+        deleteSnaps = new ArrayList<>();
+        difficulty = 1;
     }
 
     @Override
@@ -73,16 +76,42 @@ public class Main extends GameApp {
             setCursor(Cursor.DEFAULT);
         }
 
-        if(clusterGen.getTime() > difficulty){
-            snaps.add(new Cluster(R.nextInt(120) * 0.01 + 0.1, Stats.getScreenMaxX() + 200, Stats.getScreenY() + Stats.getScreenHeight() / 2));
+        if(clusterGen.getTime() > 3000 / difficulty){
+            snaps.add(0, new Cluster(R.nextInt(120) * 0.01 + 0.1, Stats.getScreenMaxX() + 200, Stats.getScreenY() + Stats.getScreenHeight() / 2));
             clusterGen.reset();
+            difficulty *= 1.1;
         }
 
-        for (Cluster c: snaps){
+
+        deleteSnaps.forEach(object -> snaps.remove(object));
+        deleteSnaps.clear();
+
+        for (Cluster c: snaps) {
+
+            double distance = Math.abs(Stats.getScreenX() + 150 - c.getX());
             c.setPos(pos);
-            c.setClusterPos(c.getX() - 5, c.getY());
-            if(c.getX() < -200){
-                Cluster.removeObject(c);
+
+            if (Math.abs(heat - c.getHeat()) < 0.1 && distance < 200) {
+
+                c.setHeat(c.getHeat() + (heat - c.getHeat()) * 0.05);
+                c.setClusterPos(c.getX() + (Stats.getScreenX() + 150 - c.getX()) * 0.2, c.getY());
+
+                if(distance < 10){
+                    Cluster.removeObject(c);
+                    deleteSnaps.add(c);
+                }
+
+            } else {
+                c.setClusterPos(c.getX() - 5, c.getY());
+
+                if (Stats.getScreenX() + 150 - c.getX() > 0) {
+                    Cluster.removeObject(c);
+                    System.exit(0);
+                }
+            }
+
+            if(distance < 1000 && R.nextInt((int)(Math.abs(heat - c.getHeat()) * 1000) + 1) == 0 && Math.abs(heat - c.getHeat()) < 0.1 && !(Stats.getScreenX() + 150 - c.getX() > 0)){
+                new MiniParticle(c.getParticles(), c.getColor(), player);
             }
         }
 
@@ -155,7 +184,6 @@ public class Main extends GameApp {
         }
 
         player.setHeat(heat);
-        System.out.println("Runtime: " + getRuntime());
 
     }
 
