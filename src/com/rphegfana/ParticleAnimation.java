@@ -9,12 +9,16 @@ public class ParticleAnimation extends Entity {
 
     private ArrayList<Cluster> snaps;
     private Cluster player;
-    private ArrayList<IndParticle> particles;
+    private ArrayList<IndParticle> particles, deleteQueue;
     private String state;
 
-    public ParticleAnimation(ArrayList<Cluster> snaps, Cluster player){
+    public ParticleAnimation(ArrayList<Cluster> snaps){
+        addObject(this);
+
         this.player = player;
         this.snaps = snaps;
+        particles = new ArrayList<>();
+        deleteQueue = new ArrayList<>();
         state = "none";
     }
 
@@ -28,9 +32,6 @@ public class ParticleAnimation extends Entity {
 
     public void startDeath(){
         state = "death";
-        for(Particle p : player.getParticles()) {
-            particles.add(new IndParticle(p.getX(), p.getY(), player.getColor()));
-        }
 
         for(Cluster c : snaps){
             for (Particle p : c.getParticles()){
@@ -39,21 +40,27 @@ public class ParticleAnimation extends Entity {
         }
     }
 
-    public void startRegen(){
-        state = "regen";
-    }
+
 
     @Override
     public void onUpdate(GraphicsContext gc) {
+
+        deleteQueue.forEach(p -> particles.remove(p));
+        deleteQueue.clear();
 
         switch (state){
             case "death":
                 for (IndParticle p : particles){
                     p.draw(gc);
+                    if(p.isGone()){
+                        deleteQueue.add(p);
+                    }
                 }
                 break;
 
         }
+
+        System.out.println(state);
 
     }
 }

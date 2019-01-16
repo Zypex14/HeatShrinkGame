@@ -14,6 +14,7 @@ public class Cluster extends Entity{
     private int r, g, b;
     private Color color;
     private Point2D[] pos;
+    private boolean rendering;
 
     public void setPos(Point2D[] pos) {
         this.pos = pos;
@@ -26,6 +27,10 @@ public class Cluster extends Entity{
 
     private ArrayList<Particle> particles;
 
+    public void setRendering(boolean rendering) {
+        this.rendering = rendering;
+    }
+
     public Cluster(double heat, double startX, double startY){
         addObject(this);
 
@@ -37,6 +42,7 @@ public class Cluster extends Entity{
         b = 0;
         color = Color.rgb(r, g, b);
         particles = new ArrayList<>();
+        rendering = true;
 
         for (int i = 0; i < 16; i++){
             int x = (i % 4) * 20 - 30;
@@ -85,7 +91,9 @@ public class Cluster extends Entity{
             p.setClusterPos(x, y);
             p.setPos(pos[i]);
             p.setHeat(heat);
-            p.draw(gc);
+            if(rendering) {
+                p.draw(gc);
+            }
         }
     }
 }

@@ -18,14 +18,19 @@ public class Main extends GameApp {
     private Point2D[] translate, pos;
     private Random R;
     private Timer clusterGen;
-    private int difficulty;
+    private Timer scoreCounter;
+    private double difficulty;
+    private int score;
     private ArrayList<Cluster> snaps, deleteSnaps;
+    private ParticleAnimation pa;
+    private UI ui;
+    private String gameState;
 
     //    This is a function that can be used to change the settings of the game
     @Override
     public void initSettings(GameSettings gs) {
         gs.setHertz(60);
-        gs.setTitle("Thermal Snap");
+        gs.setTitle("Phase");
         gs.setFullscreen(true);
         gs.setAspectRatio(16, 9);
     }
@@ -36,9 +41,13 @@ public class Main extends GameApp {
         cursorCool = new Timer();
         cursorCool.start();
 
+        score = 0;
+
         heat = 0;
         heatTranslate = 0.01;
         state = "solid";
+
+        gameState = "menu";
 
         player = new Cluster(heat,Stats.getScreenX() + 150, (Stats.getScreenY() + Stats.getScreenMaxY()) / 2);
         translate = new Point2D[16];
@@ -52,11 +61,16 @@ public class Main extends GameApp {
         R = new Random();
         clusterGen = new Timer();
         clusterGen.start();
-        clusterGen.setTime(5000);
+        clusterGen.setTime(100000);
+        scoreCounter = new Timer();
+        scoreCounter.start();
 
         snaps = new ArrayList<>();
         deleteSnaps = new ArrayList<>();
-        difficulty = 1;
+        difficulty = 0.2;
+
+        ui = new UI();
+        pa = new ParticleAnimation(snaps);
     }
 
     @Override
@@ -76,10 +90,10 @@ public class Main extends GameApp {
             setCursor(Cursor.DEFAULT);
         }
 
-        if(clusterGen.getTime() > 3000 / difficulty){
+        if(clusterGen.getTime() > 3000d / difficulty && gameState.equals("play")){
             snaps.add(0, new Cluster(R.nextInt(120) * 0.01 + 0.1, Stats.getScreenMaxX() + 200, Stats.getScreenY() + Stats.getScreenHeight() / 2));
             clusterGen.reset();
-            difficulty *= 1.1;
+            difficulty += 0.1;
         }
 
 
@@ -99,18 +113,23 @@ public class Main extends GameApp {
                 if(distance < 10){
                     Cluster.removeObject(c);
                     deleteSnaps.add(c);
+                    score += 2;
                 }
 
             } else {
                 c.setClusterPos(c.getX() - 5, c.getY());
 
                 if (Stats.getScreenX() + 150 - c.getX() > 0) {
-                    Cluster.removeObject(c);
-                    System.exit(0);
+                    pa.startDeath();
+                    for (Cluster c2 : snaps) {
+                        Cluster.removeObject(c2);
+                        deleteSnaps.add(c2);
+                    }
+                    gameState = "menu";
                 }
             }
 
-            if(distance < 1000 && R.nextInt((int)(Math.abs(heat - c.getHeat()) * 1000) + 1) == 0 && Math.abs(heat - c.getHeat()) < 0.1 && !(Stats.getScreenX() + 150 - c.getX() > 0)){
+            if(distance < 1000 && R.nextInt((int)(Math.abs(heat - c.getHeat()) * 1) + 1) == 0 && Math.abs(heat - c.getHeat()) < 0.1 && !(Stats.getScreenX() + 150 - c.getX() > 0)){
                 new MiniParticle(c.getParticles(), c.getColor(), player);
             }
         }
@@ -183,7 +202,21 @@ public class Main extends GameApp {
 
         }
 
+        if(gameState.equals("menu") && isKeyHeld(KeyCode.ENTER)){
+            gameState = "play";
+            score = 0;
+            difficulty = 0.2;
+        }
+
         player.setHeat(heat);
+
+        if(scoreCounter.getTime() > 1000 && gameState.equals("play")){
+            score += 1;
+            scoreCounter.reset();
+        }
+
+        ui.setScore(score);
+        ui.setGameState(gameState);
 
     }
 
